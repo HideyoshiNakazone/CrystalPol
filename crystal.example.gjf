@@ -1,10 +1,10 @@
 %mem=42GB
 %Nprocs=20
-#p cam-b3lyp/aug-cc-pVDZ POP=CHELPG density=current NoSymm CHARGE
+#p ${LEVEL} POP=${POP} density=current NoSymm (CHARGE - A partir do segundo)
 
-DC-MBI UAEnvolvida passo 1
+${COMMENTARY} passo 1
 
-0 1
+${MULT}
 Cl      0.529511   -1.626652    1.247344
 Cl      0.362927   -1.511555    4.375374
 N       3.703161    2.470259    1.679277
@@ -23,7 +23,6 @@ H       3.801546    2.769374    4.720692
 H       5.682386    4.106863    3.538439
 H       4.594603    5.044583    2.908321
 H       5.565634    4.235948    1.980819
-
 
 Cl    -13.708489   -7.313252   -9.150656
 Cl    -13.875073   -7.198155   -6.022626
