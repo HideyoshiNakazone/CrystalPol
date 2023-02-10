@@ -3,7 +3,7 @@ from crystalpol.shared.system.crystal import Crystal
 from crystalpol.shared.config import Config
 
 from pathlib import Path, PosixPath
-from typing import TextIO
+from typing import TextIO, Union
 import subprocess
 import textwrap
 import shutil
@@ -25,8 +25,14 @@ class Gaussian:
 
     def run(self, cycle: int, crystal: Crystal) -> None:
 
-        file = Path("simfiles", f"crystal-{str(cycle).zfill(2)}.gjf")
+        self.create_simulation_dir()
 
+        file = Path(
+            "simfiles",
+            f"crystal-{str(cycle).zfill(2)}",
+            f"crystal-{str(cycle).zfill(2)}.gjf"
+        )
+        self.create_step_dir(cycle)
         self.make_gaussian_input(cycle, file, crystal)
 
         if shutil.which("bash") is not None:
@@ -35,7 +41,7 @@ class Gaussian:
                     "bash",
                     "-c",
                     "exec -a {}-step{} {} {}".format(
-                        self.qmprog, cycle, self.qmprog, file.name
+                        self.qmprog, cycle, self.qmprog, str(file)
                     ),
                 ]
             )
@@ -47,6 +53,19 @@ class Gaussian:
 
         return self.read_charges_from_gaussian_output()
 
+    def create_step_dir(self, cycle):
+        step_dir = Path(
+            "simfiles",
+            f"crystal-{str(cycle).zfill(2)}"
+        )
+        if not os.path.exists(step_dir):
+            os.makedirs(step_dir)
+        else:
+            raise RuntimeError(
+                f"Step directory '{str(step_dir)}' already exists. "
+                f"Please remove it before proceeding."
+            )
+
     def create_simulation_dir(self):
         if not os.path.exists(self.config.simulation_dir):
             os.makedirs(self.config.simulation_dir)
@@ -56,17 +75,17 @@ class Gaussian:
                 f"Please remove it before proceeding."
             )
 
-    def make_gaussian_input(self, cycle: int, file: PosixPath, crystal: Crystal) -> str:
+    def make_gaussian_input(self, cycle: int, file: Union[PosixPath, Path], crystal: Crystal) -> str:
 
         with open(file, 'w+') as fh:
 
-            fh.write(f"%Mem={self.config.mem}MB\n")
+            fh.write(f"%Mem={self.config.mem}Gb\n")
 
             fh.write(f"%Nprocs={self.config.n_procs}\n")
 
             kwords_line = f"#P {self.config.level} " \
-                          f"Pop = {self.config.pop} " \
-                          f"Density = Current " \
+                          f"Pop={self.config.pop} " \
+                          f"Density=Current " \
                           f"NoSymm "
 
             if cycle > 1:
@@ -77,16 +96,18 @@ class Gaussian:
 
             fh.write(f"\n{self.config.comment} - Cycle number {cycle}\n")
             fh.write("\n")
-            fh.write(f"{self.config.mult[0]}, {self.config.mult[1]}\n")
+            fh.write(f"{self.config.mult[0]} {self.config.mult[1]}\n")
 
             for atom in crystal[0][0]:
                 symbol = atom_symbol[atom.na]
                 fh.write(
                     f"{symbol:<2s}    "
-                    f"{atom.rx:>10.5f}   "
-                    f"{atom.ry:>10.5f}   "
-                    f"{atom.rz:>10.5f}\n"
+                    f"{float(atom.rx):>10.5f}    "
+                    f"{float(atom.ry):>10.5f}    "
+                    f"{float(atom.rz):>10.5f}\n"
                 )
+
+            fh.write("\n")
 
             if cycle > 1:
                 self.make_gaussian_charges(fh, crystal)
@@ -96,8 +117,6 @@ class Gaussian:
 
     def make_gaussian_charges(self, fh: TextIO, crystal: Crystal) -> None:
 
-        fh.write("\n")
-
         for index_cell, cell in enumerate(crystal):
             for index_mol, molecule in enumerate(cell):
                 if (index_cell == 0 and index_mol != 0) or (index_cell != 0):
@@ -105,10 +124,12 @@ class Gaussian:
                         symbol = atom_symbol[atom.na]
                         fh.write(
                             f"{symbol:<2s}    "
-                            f"{atom.rx:>10.5f}   "
-                            f"{atom.ry:>10.5f}   "
-                            f"{atom.rz:>10.5f}\n"
+                            f"{float(atom.rx):>10.5f}    "
+                            f"{float(atom.ry):>10.5f}    "
+                            f"{float(atom.rz):>10.5f}\n"
                         )
+
+        fh.write("\n")
 
     def read_charges_from_gaussian_output(self) -> None:
         pass

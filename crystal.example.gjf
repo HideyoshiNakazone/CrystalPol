@@ -1,5 +1,5 @@
-%mem=42GB
-%Nprocs=20
+%mem=30GB
+%Nprocs=24
 #p ${LEVEL} POP=${POP} density=current NoSymm (CHARGE - A partir do segundo)
 
 ${COMMENTARY} passo 1

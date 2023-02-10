@@ -1,8 +1,8 @@
 crystal_pol:
-    mem: 42
+    mem: 28
     n_procs: 20
     level: "b3lyp/aug-cc-pVDZ"
     pop: "chelpg"
     mult: [0, 1]
     n_atoms: 18
-    comment: "DC-MBI UAEnvolvida"
+    comment: "Crystal"

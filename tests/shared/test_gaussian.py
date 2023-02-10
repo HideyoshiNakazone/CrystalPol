@@ -4,6 +4,7 @@ from crystalpol.shared.system.atom import Atom
 from crystalpol.shared.config import Config
 from crystalpol.gaussian import Gaussian
 
+from pathlib import Path
 from io import StringIO
 
 from unittest import mock, TestCase
@@ -38,6 +39,7 @@ class TestGaussian(TestCase):
     @mock.patch('crystalpol.gaussian.os')
     def test_create_simulation_dir(self, os_mock):
         os_mock.path.exists.return_value = False
+        os_mock.makedirs = mock.MagicMock()
 
         gaussian = Gaussian(
             Config(
@@ -53,6 +55,7 @@ class TestGaussian(TestCase):
     @mock.patch('crystalpol.gaussian.os')
     def test_create_simulation_dir_raises_exception(self, os_mock):
         os_mock.path.exists.return_value = True
+        os_mock.makedirs = mock.MagicMock()
         gaussian = Gaussian(
             Config(
                 mem=1,
@@ -64,6 +67,7 @@ class TestGaussian(TestCase):
         with self.assertRaises(RuntimeError):
             gaussian.create_simulation_dir()
 
+    # @mock.patch('crystalpol.gaussian.os')
     @mock.patch('crystalpol.gaussian.open')
     def test_make_gaussian_input_cycle_1(self, open_mock):
 
@@ -78,16 +82,17 @@ class TestGaussian(TestCase):
                 n_atoms=10
             )
         )
-        gaussian_input = gaussian.make_gaussian_input(1, crystal)
+        gaussian_input = gaussian.make_gaussian_input(1, Path(), crystal)
         expected_output = """\
-%Mem=1MB
+%Mem=1Gb
 %Nprocs=1
-#P b3lyp/aug-cc-pVDZ Pop = chelpg Density = Current NoSymm
+#P b3lyp/aug-cc-pVDZ Pop=chelpg Density=Current NoSymm
 
 crystalpol - Cycle number 1
 
-0, 1
-H        0.00000      0.00000      0.00000
+0 1
+H        0.00000       0.00000       0.00000
+
 """
         self.assertEqual(gaussian_input, expected_output)
 
@@ -107,16 +112,17 @@ H        0.00000      0.00000      0.00000
         )
         gaussian_input = gaussian.make_gaussian_input(2, "test", crystal)
         expected_output = """\
-%Mem=1MB
+%Mem=1Gb
 %Nprocs=1
-#P b3lyp/aug-cc-pVDZ Pop = chelpg Density = Current NoSymm charge
+#P b3lyp/aug-cc-pVDZ Pop=chelpg Density=Current NoSymm charge
 
 crystalpol - Cycle number 2
 
-0, 1
-H        0.00000      0.00000      0.00000
+0 1
+H        0.00000       0.00000       0.00000
 
-H        0.00000      0.00000      0.00000
+H        0.00000       0.00000       0.00000
+
 """
         self.assertEqual(gaussian_input, expected_output)
 
@@ -136,13 +142,15 @@ H        0.00000      0.00000      0.00000
         file.seek(0)
 
         charges_string = file.read()
-        expected_charges = '\nH        0.00000      0.00000      0.00000\n'
+        expected_charges = 'H        0.00000       0.00000       0.00000\n\n'
 
         self.assertEqual(charges_string, expected_charges)
 
+    @mock.patch('crystalpol.gaussian.os')
     @mock.patch('crystalpol.gaussian.subprocess.call', autospec=True, return_value=0)
     @mock.patch('crystalpol.gaussian.Gaussian.make_gaussian_input')
-    def test_run(self, subprocess_call_mock, make_gaussian_input_mock):
+    def test_run(self, make_gaussian_input_mock, subprocess_call_mock, os_mock):
+        os_mock.path.exists.return_value = False
 
         gaussian = Gaussian(
             Config(
@@ -155,9 +163,11 @@ H        0.00000      0.00000      0.00000
 
         self.assertTrue(subprocess_call_mock.called)
 
+    @mock.patch('crystalpol.gaussian.os')
     @mock.patch('crystalpol.gaussian.subprocess.call', autospec=True, return_value=1)
     @mock.patch('crystalpol.gaussian.Gaussian.make_gaussian_input')
-    def test_run_raises_exception(self, subprocess_call_mock, make_gaussian_input_mock):
+    def test_run_raises_exception(self, subprocess_call_mock, make_gaussian_input_mock, os_mock):
+        os_mock.path.exists.return_value = False
 
         gaussian = Gaussian(
             Config(

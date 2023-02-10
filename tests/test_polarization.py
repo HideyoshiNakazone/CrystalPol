@@ -6,7 +6,6 @@ from crystalpol.shared.system.molecule import Molecule
 from unittest import TestCase, mock
 import unittest
 
-
 GEOM_DATA = """\
     Cl      0.529511   -1.626652    1.247344
     N       3.703161    2.470259    1.679277
@@ -85,9 +84,12 @@ class TestPolarization(TestCase):
         self.assertEqual(len(pol.crystal), 2)
         self.assertEqual(len(pol.crystal[0]), 1)
 
-
     @mock.patch('builtins.open', mock.mock_open(read_data=GEOM_DATA))
-    def test_run(self):
+    @mock.patch('crystalpol.gaussian.subprocess.call', autospec=True, return_value=0)
+    @mock.patch('crystalpol.gaussian.os')
+    def test_run(self, os_mock, subprocess_call_mock):
+        os_mock.path.exists.return_value = False
+
         pol = Polarization("geom_file", "outfile", self.config)
 
         pol.run()
