@@ -6,9 +6,11 @@ from crystalpol.shared.system.atom import Atom
 from crystalpol.shared.config import Config
 from crystalpol.gaussian import Gaussian
 
-from typing import List
+from typing import List, Tuple
 
 import sys
+
+from crystalpol.shared.utils.log import Log
 
 
 class Polarization:
@@ -30,12 +32,20 @@ class Polarization:
         self.read_crystal()
 
         cycle = 1
-        charge_diff = sys.float_info.max
-        while charge_diff > self.config.charge_tolerance:
+        max_charge_diff = sys.float_info.max
+        while max_charge_diff > self.config.charge_tolerance:
 
-            charge_diff = self.update_crystal_charges(
+            max_charge_diff, charge_diff = self.update_crystal_charges(
                 self.gaussian.run(cycle, self.crystal),
             )
+
+            Log.make_run(
+                cycle,
+                max_charge_diff,
+                charge_diff,
+                self.crystal
+            )
+
             cycle += 1
 
     def read_crystal(self) -> None:
@@ -49,7 +59,7 @@ class Polarization:
         for molecule in molecules:
             self.crystal.add_cell([molecule])
 
-    def update_crystal_charges(self, charges: List[float]) -> float:
+    def update_crystal_charges(self, charges: List[float]) -> Tuple[float, list]:
 
         charge_diff = []
 
@@ -60,7 +70,9 @@ class Polarization:
                         charge_diff.append(abs(atom.chg - charges[index]))
                     atom.chg = charges[index]
 
-        return abs(max(charge_diff, key=abs)) if charge_diff else sys.float_info.max
+        max_charge_diff = abs(max(charge_diff, key=abs)) if charge_diff else sys.float_info.max
+
+        return max_charge_diff, charge_diff
 
     def _get_molecules_from_lines(self, lines: List[str]) -> List[Molecule]:
         if (len(lines) % self.config.n_atoms) == 0:
