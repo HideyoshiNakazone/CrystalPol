@@ -10,6 +10,7 @@ class Config:
 
     n_procs: int = 1
     pop: str = "chelpg"
+    charge_tolerance = 0.02
     comment: str = "crystalpol"
     simulation_dir = "simfiles"
     mult: list = \

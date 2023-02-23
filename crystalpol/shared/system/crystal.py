@@ -34,6 +34,9 @@ class Crystal:
         else:
             self.cells.append(cell)
 
+    def get_number_of_charges(self):
+        return len(self.cells[0][0])
+
     def _is_valid_cell(self, cell: List[Molecule]) -> bool:
         if len(cell) == len(self.structure):
             for i, molecule in enumerate(cell):

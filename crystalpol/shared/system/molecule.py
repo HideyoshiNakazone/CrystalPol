@@ -28,12 +28,7 @@ class Molecule:
     __slots__ = (
         'mol_name',
         'atoms',
-        'position',
-        'energy',
-        'gradient',
-        'hessian',
-        'total_mass',
-        'com'
+        'position'
     )
 
     def __init__(self, mol_name: str) -> None:
@@ -50,6 +45,9 @@ class Molecule:
     def __iter__(self):
         for atom in self.atoms:
             yield atom
+
+    def __len__(self):
+        return len(self.atoms)
 
     def add_atom(self, a: Atom) -> None:
         """

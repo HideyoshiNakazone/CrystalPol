@@ -8,6 +8,8 @@ from crystalpol.gaussian import Gaussian
 
 from typing import List
 
+import sys
+
 
 class Polarization:
     __slots__ = ('geom_file', 'outfile', 'config', 'gaussian', 'crystal')
@@ -23,9 +25,18 @@ class Polarization:
 
     def run(self):
 
+        self.gaussian.create_simulation_dir()
+
         self.read_crystal()
 
-        self.gaussian.run(1, self.crystal)
+        cycle = 1
+        charge_diff = sys.float_info.max
+        while charge_diff > self.config.charge_tolerance:
+
+            charge_diff = self.update_crystal_charges(
+                self.gaussian.run(cycle, self.crystal),
+            )
+            cycle += 1
 
     def read_crystal(self) -> None:
         with open(self.geom_file, 'r') as geom_file:
@@ -38,11 +49,24 @@ class Polarization:
         for molecule in molecules:
             self.crystal.add_cell([molecule])
 
+    def update_crystal_charges(self, charges: List[float]) -> float:
+
+        charge_diff = []
+
+        for cell in self.crystal:
+            for molecule in cell:
+                for index, atom in enumerate(molecule):
+                    if atom.chg:
+                        charge_diff.append(abs(atom.chg - charges[index]))
+                    atom.chg = charges[index]
+
+        return abs(max(charge_diff, key=abs)) if charge_diff else sys.float_info.max
+
     def _get_molecules_from_lines(self, lines: List[str]) -> List[Molecule]:
         if (len(lines) % self.config.n_atoms) == 0:
             molecules: List[Molecule] = []
 
-            for index, molecule in enumerate(split(lines, self.config.n_atoms)):
+            for index, molecule in enumerate(self.split(lines, self.config.n_atoms)):
                 mol = Molecule(f"Molecule-{index}")
                 for atom_line in molecule:
                     symbol, rx, ry, rz = tuple(atom_line.split())
@@ -68,7 +92,7 @@ class Polarization:
             structure.append(atom.symbol)
         return structure
 
-
-def split(array: List, partitions: int):
-    for i in range(0, len(array), partitions):
-        yield array[i: i + partitions]
+    @staticmethod
+    def split(array: List, partitions: int):
+        for i in range(0, len(array), partitions):
+            yield array[i: i + partitions]

@@ -3,10 +3,11 @@ from crystalpol.shared.system.crystal import Crystal
 from crystalpol.shared.config import Config
 
 from pathlib import Path, PosixPath
-from typing import TextIO, Union
+from typing import TextIO, Union, List
 import subprocess
 import textwrap
 import shutil
+import sys
 import os
 
 
@@ -23,9 +24,7 @@ class Gaussian:
         if self.config.pop not in ["chelpg", "mk", "nbo"]:
             self.config.pop = "chelpg"
 
-    def run(self, cycle: int, crystal: Crystal) -> None:
-
-        self.create_simulation_dir()
+    def run(self, cycle: int, crystal: Crystal) -> List[float]:
 
         file = Path(
             "simfiles",
@@ -51,11 +50,14 @@ class Gaussian:
         if exit_status != 0:
             raise RuntimeError("Gaussian process did not exit properly")
 
-        return self.read_charges_from_gaussian_output()
+        return self.read_charges_from_gaussian_output(
+            cycle,
+            crystal.get_number_of_charges()
+        )
 
     def create_step_dir(self, cycle):
         step_dir = Path(
-            "simfiles",
+            self.config.simulation_dir,
             f"crystal-{str(cycle).zfill(2)}"
         )
         if not os.path.exists(step_dir):
@@ -78,6 +80,9 @@ class Gaussian:
     def make_gaussian_input(self, cycle: int, file: Union[PosixPath, Path], crystal: Crystal) -> str:
 
         with open(file, 'w+') as fh:
+
+            chk_path = file.with_suffix('.chk')
+            fh.write(f"%Chk={chk_path}\n")
 
             fh.write(f"%Mem={self.config.mem}Gb\n")
 
@@ -123,13 +128,32 @@ class Gaussian:
                     for atom in molecule:
                         symbol = atom_symbol[atom.na]
                         fh.write(
-                            f"{symbol:<2s}    "
                             f"{float(atom.rx):>10.5f}    "
                             f"{float(atom.ry):>10.5f}    "
-                            f"{float(atom.rz):>10.5f}\n"
+                            f"{float(atom.rz):>10.5f}    "
+                            f"{float(atom.chg):>10.5f}\n"
                         )
 
         fh.write("\n")
 
-    def read_charges_from_gaussian_output(self) -> None:
-        pass
+    def read_charges_from_gaussian_output(self, cycle, number_of_charges: int) -> List[float]:
+        step_dir = Path(
+            self.config.simulation_dir,
+            f"crystal-{str(cycle).zfill(2)}"
+        )
+        filename = f"crystal-{str(cycle).zfill(2)}.log"
+
+        file = Path(step_dir, filename)
+        try:
+            with open(file) as data:
+                lines = data.readlines()
+        except FileNotFoundError:
+            sys.exit("Error: cannot open file {}".format(file))
+
+        start = lines.pop(0).strip()
+        while start != "Fitting point charges to electrostatic potential":
+            start = lines.pop(0).strip()
+
+        lines = lines[3:]  # Consume 3 more lines
+
+        return list(map(lambda x: float(x.split()[2]), lines[:number_of_charges]))

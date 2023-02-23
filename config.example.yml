@@ -1,5 +1,5 @@
 crystal_pol:
-    mem: 28
+    mem: 24
     n_procs: 20
     level: "b3lyp/aug-cc-pVDZ"
     pop: "chelpg"
