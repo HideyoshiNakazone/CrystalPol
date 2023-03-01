@@ -33,7 +33,7 @@ class Polarization:
 
         cycle = 1
         max_charge_diff = sys.float_info.max
-        while max_charge_diff > self.config.charge_tolerance:
+        while max_charge_diff >= self.config.charge_tolerance:
 
             max_charge_diff, charge_diff = self.update_crystal_charges(
                 self.gaussian.run(cycle, self.crystal),
@@ -41,7 +41,7 @@ class Polarization:
 
             Log.make_run(
                 cycle,
-                max_charge_diff,
+                max_charge_diff if cycle != 1 else 0,
                 charge_diff,
                 self.crystal
             )

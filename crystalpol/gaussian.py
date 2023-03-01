@@ -81,9 +81,6 @@ class Gaussian:
 
         with open(file, 'w+') as fh:
 
-            chk_path = file.with_suffix('.chk')
-            fh.write(f"%Chk={chk_path}\n")
-
             fh.write(f"%Mem={self.config.mem}Gb\n")
 
             fh.write(f"%Nprocs={self.config.n_procs}\n")
@@ -120,21 +117,19 @@ class Gaussian:
             fh.seek(0)
             return fh.read()
 
-    def make_gaussian_charges(self, fh: TextIO, crystal: Crystal) -> None:
+    @staticmethod
+    def make_gaussian_charges(fh: TextIO, crystal: Crystal) -> None:
 
         for index_cell, cell in enumerate(crystal):
             for index_mol, molecule in enumerate(cell):
                 if (index_cell == 0 and index_mol != 0) or (index_cell != 0):
                     for atom in molecule:
-                        symbol = atom_symbol[atom.na]
                         fh.write(
                             f"{float(atom.rx):>10.5f}    "
                             f"{float(atom.ry):>10.5f}    "
                             f"{float(atom.rz):>10.5f}    "
                             f"{float(atom.chg):>10.5f}\n"
                         )
-
-        fh.write("\n")
 
     def read_charges_from_gaussian_output(self, cycle, number_of_charges: int) -> List[float]:
         step_dir = Path(

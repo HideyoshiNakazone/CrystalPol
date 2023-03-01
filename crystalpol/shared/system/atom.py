@@ -18,6 +18,7 @@ class Atom:
             ry: float,
             rz: float,
             na: int = None,
+            chg: float = None,
             symbol: str = None,
 
     ) -> None:
@@ -42,5 +43,5 @@ class Atom:
         self.rx = rx
         self.ry = ry
         self.rz = rz
-        self.chg = None
+        self.chg = chg
         self.mass = atom_mass[self.na]

@@ -1,9 +1,8 @@
-from dataclasses import dataclass, field, fields
+from dataclasses import dataclass, field, fields, asdict
 
 
 @dataclass
 class Config:
-
     mem: int
     level: str
     n_atoms: int
@@ -31,13 +30,11 @@ class Config:
                 f'Memory must be a integer greater than 0.'
             )
 
-        if self.level is None:
-            raise ValueError(
-                f'Invalid value for level. Level must not be none.'
-            )
-
         if self.n_atoms is None or self.n_atoms <= 0:
             raise ValueError(
                 f'Invalid value for n_atoms: {self.mem},'
                 f'Number of Atoms must be a integer greater than 0.'
             )
+
+    def to_dict(self):
+        return asdict(self)

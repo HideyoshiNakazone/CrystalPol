@@ -85,14 +85,25 @@ class TestPolarization(TestCase):
         self.assertEqual(len(pol.crystal[0]), 1)
 
     @mock.patch('builtins.open', mock.mock_open(read_data=GEOM_DATA))
-    @mock.patch('crystalpol.gaussian.subprocess.call', autospec=True, return_value=0)
-    @mock.patch('crystalpol.gaussian.os')
-    def test_run(self, os_mock, subprocess_call_mock):
-        os_mock.path.exists.return_value = False
+    @mock.patch('crystalpol.polarization.Gaussian')
+    def test_run(self,  gaussian_mock):
 
-        pol = Polarization("geom_file", "outfile", self.config)
+        pol = Polarization(
+            "geom_file",
+            "outfile",
+            self.config
+        )
+
+        pol.gaussian.run.side_effect = [
+            [.2, .2, .2, .2],
+            [.02, .02, .02, .02],
+            [.02, .02, .02, .02]
+        ]
 
         pol.run()
+
+        self.assertTrue(pol.gaussian.create_simulation_dir.called)
+        self.assertTrue(pol.gaussian.run.called)
 
         self.assertIsNotNone(pol.crystal)
         self.assertEqual(len(pol.crystal), 2)

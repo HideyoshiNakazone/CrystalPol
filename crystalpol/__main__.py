@@ -69,7 +69,7 @@ def main():
     except IOError:
         raise RuntimeError('Invalid or Missing Config File.')
 
-    Log.make_header(__VERSION, data.get('crystal_pol'))
+    Log.make_header(__VERSION, config.to_dict())
 
     pol = Polarization(args.infile, args.outfile, config)
     pol.run()

@@ -1,45 +1,49 @@
-import sys
-
-from crystalpol.shared.config import Config
+from crystalpol.shared.utils import weekday_date_time
 
 import logging
-
-from crystalpol.shared.utils import weekday_date_time
+import sys
 
 
 class Log:
     @staticmethod
-    def make_header(version: str, config_dict: dict):
-        logging.info(
+    def make_header(version: str, config_dict: dict, logger=None):
+
+        if logger is None:
+            logger = logging.getLogger()
+
+        logger.info(
             f"##########################################################################################\n"
             f"##############             Welcome to CRYSTALPOL version {version}             ##############\n"
             f"##########################################################################################\n"
         )
-        logging.info(f"Your python version is {sys.version}\n")
-        logging.info(f"Program started on {weekday_date_time()}\n")
+        logger.info(f"Your python version is {sys.version}\n")
+        logger.info(f"Program started on {weekday_date_time()}\n")
 
-        logging.info("------------------------------------------------------------------------------------------")
-        logging.info("                   CRYSTALPOL variables being used in this run:                           ")
-        logging.info("------------------------------------------------------------------------------------------\n")
+        logger.info("------------------------------------------------------------------------------------------")
+        logger.info("                   CRYSTALPOL variables being used in this run:                           ")
+        logger.info("------------------------------------------------------------------------------------------\n")
         for key, value in config_dict.items():
-            logging.info(f"\t{key} = {(key if key else 'Not set')}")
+            logger.info(f"\t{key} = {(value if value else 'Not set')}")
 
-        logging.info("------------------------------------------------------------------------------------------")
-        logging.info(f"                                      RUN Results:                                       ")
-        logging.info("------------------------------------------------------------------------------------------\n")
+        logger.info("------------------------------------------------------------------------------------------")
+        logger.info(f"                                      RUN Results:                                       ")
+        logger.info("------------------------------------------------------------------------------------------\n")
 
     @staticmethod
-    def make_run(cycle, max_charge_diff, charge_diff, crystal):
-        logging.info(f"cycle: {cycle}")
-        logging.info(f"\nMax charge diff: {max_charge_diff}")
-        logging.info(f"Charge Diff: {charge_diff}\n")
+    def make_run(cycle, max_charge_diff, charge_diff, crystal, logger=None):
 
-        logging.info("------------------------------------------------------------------------------------------")
-        logging.info(f"             S             rx             ry             rz             chg              ")
-        logging.info("------------------------------------------------------------------------------------------")
+        if logger is None:
+            logger = logging.getLogger()
+
+        logger.info(f"cycle: {cycle}")
+        logger.info(f"\nMax charge diff: {max_charge_diff:.5f}")
+        logger.info(f"Charge Diff: {charge_diff}\n")
+
+        logger.info(f"------------------------------------------------------------------------------------------")
+        logger.info(f"             S             rx             ry             rz             chg               ")
+        logger.info(f"------------------------------------------------------------------------------------------")
         for atom in crystal[0][0]:
-            logging.info(f"             {atom.symbol}        {atom.rx}        {atom.ry}        {atom.rz}        {atom.chg}    ")
+            logger.info(
+                f"             {atom.symbol.rjust(2)}         {float(atom.rx):.6f}       {float(atom.ry):.6f}       {float(atom.rz):.6f}       {float(atom.chg):.6f}             ")
 
-        logging.info("\n------------------------------------------------------------------------------------------\n")
-
-
+        logger.info("\n------------------------------------------------------------------------------------------\n")

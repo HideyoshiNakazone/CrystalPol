@@ -1,6 +1,8 @@
 *.log
 *.log.backup
 
+!gaussian_output_example.log
+
 *.pyc
 
 .idea/
