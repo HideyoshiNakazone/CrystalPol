@@ -30,6 +30,12 @@ Sendo que as primeiras **N** (valor derivado da keyword _**n_atoms**_) átomos d
 
 Este arquivo pode ser obtido também retirando o header de um arquivo .gjf e o renomeando para .xyz
 
+## Instalando dependência
+
+```bash
+python3 -m pip install setproctitle pyyaml nptyping numpy
+```
+
 ## Como executar
 
 ```bash
