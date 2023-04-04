@@ -28,4 +28,4 @@ jobs:
         if [ -f Pipfile ]; then pipenv install; fi
     - name: Test with unittest
       run: |
-        pipenv run python -m unittest
+        pipenv run python -m unittest -v
