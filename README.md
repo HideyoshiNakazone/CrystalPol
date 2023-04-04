@@ -46,3 +46,17 @@ Caso as opções `-c`, `-i` e `-o` não seja dadas os seguintes valores padrões
 - arquivo_de_config: `config.yml`
 - arquivo_de_input: `crystal.xyz`
 - arquivo_de_saida: `run.log`
+
+
+## Orientação para Citações
+
+Por favor citar este software utilizando o seguinte biblatex:
+
+```
+@software{crystalpol,
+  author = {{Georg, Herbert} and {Batista, Vitor}},
+  title = {CrystalPol - Crystal Polarization Software},
+  url = {https://github.com/HideyoshiNakazone/CrystalPol},
+  version = {0.1},
+}
+```
