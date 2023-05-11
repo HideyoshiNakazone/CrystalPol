@@ -9,9 +9,9 @@ class Config:
 
     n_procs: int = 1
     pop: str = "chelpg"
-    charge_tolerance = 0.02
     comment: str = "crystalpol"
-    simulation_dir = "simfiles"
+    charge_tolerance: float = 0.02
+    simulation_dir: str = "simfiles"
     mult: list = \
         field(default_factory=lambda: [0, 1])
 

@@ -1,18 +1,15 @@
 from crystalpol.polarization import Polarization
 from crystalpol.shared.config import Config
+from crystalpol.shared.utils.log import Log
 
 from yaml.loader import SafeLoader
-import yaml
-
 from pathlib import Path
 import setproctitle
 import argparse
 import logging
-import sys
+import yaml
 import os
 
-from crystalpol.shared.utils import weekday_date_time
-from crystalpol.shared.utils.log import Log
 
 __VERSION = "v0.0.1"
 os.nice(+19)

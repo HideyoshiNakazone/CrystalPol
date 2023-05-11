@@ -1,5 +1,3 @@
-import os
-
 from crystalpol.shared.system.molecule import Molecule
 from crystalpol.shared.system.crystal import Crystal
 from crystalpol.shared.system.atom import Atom

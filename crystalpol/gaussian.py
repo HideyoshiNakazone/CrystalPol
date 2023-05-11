@@ -27,7 +27,7 @@ class Gaussian:
     def run(self, cycle: int, crystal: Crystal) -> List[float]:
 
         file = Path(
-            "simfiles",
+            self.config.simulation_dir,
             f"crystal-{str(cycle).zfill(2)}",
             f"crystal-{str(cycle).zfill(2)}.gjf"
         )
@@ -151,4 +151,9 @@ class Gaussian:
 
         lines = lines[3:]  # Consume 3 more lines
 
-        return list(map(lambda x: float(x.split()[2]), lines[:number_of_charges]))
+        return list(
+            map(
+                lambda x: float(x.split()[2]),
+                lines[:number_of_charges]
+            )
+        )
