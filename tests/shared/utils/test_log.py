@@ -57,6 +57,8 @@ class TestLog(TestCase):
             '\tn_procs = 1\n',
             '\tpop = chelpg\n',
             '\tcomment = crystalpol\n',
+            '\tcharge_tolerance = 0.02\n',
+            '\tsimulation_dir = simfiles\n',
             '\tmult = [0, 1]\n',
             '------------------------------------------------------------------------------------------\n',
             '                                      RUN Results:                                       \n',
