@@ -53,3 +53,12 @@ class TestConfig(unittest.TestCase):
                 level="b3lyp/aug-cc-pVDZ",
                 n_atoms=0
             )
+
+    def test_set_charge_tolerance(self):
+        config = Config(
+            mem=1,
+            level="b3lyp/aug-cc-pVDZ",
+            n_atoms=10,
+            charge_tolerance=0.001
+        )
+        self.assertEqual(config.charge_tolerance, 0.001)
