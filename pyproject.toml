@@ -1,0 +1,54 @@
+[tool.poetry]
+name = "crystalpol"
+version = "0.0.1"
+description = "Crystal Optimization Automation using Gaussian16"
+authors = ["Vitor Hideyoshi <vitor.h.n.batista@gmail.com>"]
+license = "GPL-2.0-only"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.8"
+setproctitle = "^1.3.2"
+PyYAML = "^6.0"
+
+[tool.poetry.group.dev.dependencies]
+coverage = "^7.2.5"
+black = "^23.3.0"
+isort = "^5.12.0"
+pre-commit = "^3.3.1"
+poethepoet = "^0.20.0"
+
+[tool.poetry.scripts]
+crystalpol = "crystalpol.__main__:main"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poe.tasks]
+hooks = "pre-commit install"
+
+[tool.coverage.run]
+omit = [
+    "mega_conversao/src/utilidades/trata.py",
+    "mega_conversao/src/modulos/*",
+    "tests/*",
+]
+data_file = "coverage/.coverage"
+
+[tool.coverage.html]
+directory = "coverage/html"
+
+[tool.coverage.lcov]
+output = "coverage/lcov.info"
+
+[tool.isort]
+profile = "black"
+line_length = 79
+sections=[
+    "FUTURE",
+    "FIRSTPARTY",
+    "LOCALFOLDER",
+    "THIRDPARTY",
+    "STDLIB",
+]
