@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "crystalpol"
-version = "0.0.1-4"
+version = "0.0.1-5"
 description = "Crystal Optimization Automation using Gaussian16"
 authors = ["Vitor Hideyoshi <vitor.h.n.batista@gmail.com>"]
 license = "GPL-2.0-only"
