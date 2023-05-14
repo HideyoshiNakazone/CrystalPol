@@ -11,3 +11,5 @@ simfiles
 
 
 dist/
+
+.secrets
