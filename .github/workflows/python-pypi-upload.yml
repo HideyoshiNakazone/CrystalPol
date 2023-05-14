@@ -31,5 +31,5 @@ jobs:
         python -m poetry run python -m unittest -v
     - name: Upload Pip Package
       run: |
-        python -m poetry config repositories.pypi https://pypi.org/legacy/
+        python -m poetry config repositories.pypi https://upload.pypi.org/legacy/
         python -m poetry publish --build --username __token__ --password ${{secrets.PYPI_TOKEN}} --repository pypi
